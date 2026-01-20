@@ -44,8 +44,9 @@ export const registerUser = async (req, res) => {
     }
 
     // URL pre overenie → **smeruje priamo na backend**
-    const verificationUrl = `http://localhost:5000/api/auth/verify?token=${verificationToken}`;
+    const verificationUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify?token=${verificationToken}`;
     console.log("Verification URL sent:", verificationUrl);
+
 
     // poslať email
     await transporter.sendMail({
@@ -86,8 +87,9 @@ export const registerUser = async (req, res) => {
 
 export const verifyUser = async (req, res) => {
   const { token } = req.query;
+  const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
 
-  if (!token) return res.redirect("http://localhost:3000/login?verified=0");
+  if (!token) return res.redirect(`${frontendUrl}/login?verified=0`);
 
   try {
     const [rows] = await db.query(
@@ -96,7 +98,7 @@ export const verifyUser = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.redirect("http://localhost:3000/login?verified=0");
+      return res.redirect(`${frontendUrl}/login?verified=0`);
     }
 
     const user = rows[0];
@@ -108,12 +110,13 @@ export const verifyUser = async (req, res) => {
       );
     }
 
-    return res.redirect("http://localhost:3000/login?verified=1");
+    return res.redirect(`${frontendUrl}/login?verified=1`);
   } catch (err) {
     console.error("VERIFY ERROR:", err);
-    return res.redirect("http://localhost:3000/login?verified=0");
+    return res.redirect(`${frontendUrl}/login?verified=0`);
   }
 };
+
 
 
 
