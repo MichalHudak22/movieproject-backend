@@ -84,10 +84,11 @@ export const registerUser = async (req, res) => {
 };
 
 
-
 export const verifyUser = async (req, res) => {
   const { token } = req.query;
-  const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
+
+  // Používame backendovú env premennú, nie NEXT_PUBLIC_*
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
 
   if (!token) return res.redirect(`${frontendUrl}/login?verified=0`);
 
@@ -116,6 +117,7 @@ export const verifyUser = async (req, res) => {
     return res.redirect(`${frontendUrl}/login?verified=0`);
   }
 };
+
 
 
 
