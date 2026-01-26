@@ -2,7 +2,8 @@ import { db } from "../database/db.js";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
-import { transporter } from "../utils/mailer.js";
+import { sendVerificationEmail } from "../utils/mailer.js";
+
 
 export const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
@@ -44,27 +45,12 @@ export const registerUser = async (req, res) => {
     }
 
     // URL pre overenie → **smeruje priamo na backend**
-    const verificationUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify?token=${verificationToken}`;
+    // URL pre overenie → **smeruje priamo na backend**
+    const verificationUrl = `${process.env.API_URL}/api/auth/verify?token=${verificationToken}`;
     console.log("Verification URL sent:", verificationUrl);
 
 
-    // poslať email
-    await transporter.sendMail({
-      from: `"CinemaSpace" <${process.env.EMAIL_FROM}>`,
-      to: email,
-      subject: "Verify your CinemaSpace account",
-      html: `
-        <h2>Hello ${username}</h2>
-        <p>Thanks for registering! Please verify your account by clicking the link below:</p>
-        <a href="${verificationUrl}" 
-           style="display:inline-block;padding:10px 20px;background:red;color:white;text-decoration:none;border-radius:5px;">
-           Verify Account
-        </a>
-        <p style="margin-top:20px;font-size:12px;color:#888;">
-          If you didn’t create this account, you can ignore this email.
-        </p>
-      `,
-    });
+    await sendVerificationEmail(email, username, verificationUrl);
 
     res.status(201).json({
       message: "User registered successfully. Check your email to verify account.",
